@@ -1,3 +1,4 @@
+# Тест комита
 from django.shortcuts import render
 
 
