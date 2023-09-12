@@ -1,2 +1,5 @@
+# Ignore file
 db.sqlite3
+
+# Ignore dir
 /venv/

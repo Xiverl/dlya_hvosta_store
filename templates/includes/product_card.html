@@ -1,0 +1,29 @@
+{% load static %}
+<div class="col d-flex align-items-stretch md-4">
+    <div class="card mb-4 box-shadow d-flex">
+      <div class="card-body">
+        {% if product.image %}
+          <a href="{{ product.image.url }}" target="_blank">
+            <img class="card-img-top" src="{{ product.image.url }}">
+          </a>
+        {% else %}
+          <a href="" target="_blank">
+            <img class="card-img-top" src="{% static 'img/Unknown.jpeg' %}">
+          </a>
+        {% endif %}
+        <h5 class="card-title">{{ product.title|truncatechars_html:50 }}</h5>
+        <h6 class="card-subtitle mb-2 text-muted">
+          <small>
+            {% if not product.is_published %}
+              <p class="text-danger">Пост снят с публикации админом</p>
+            {% elif not product.category.is_published %}
+              <p class="text-danger">Выбранная категория снята с публикации админом</p>
+            {% endif %}
+            {{ product.created_at|date:"d E Y, H:i" }} <br>
+          </small>
+        </h6>
+        <p class="card-text">{{ product.text|truncatechars_html:100 }}</p>
+        <a href="{% url 'store:product-detail' product.id %}" class="btn btn-primary">Заказать</a>
+      </div>
+    </div>
+</div>

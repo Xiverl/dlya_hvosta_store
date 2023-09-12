@@ -1,0 +1,17 @@
+<div class="col d-flex justify-content-center">
+    <div class="card" style="width: 40rem;">
+      <div class="card-body">
+        <h5 class="card-title"> Заказ №{{ order.id }}</h5>
+        <h6 class="card-subtitle mb-2 text-muted">
+          <small>
+            {{ order.created_at|date:"d E Y, H:i" }}
+          </small>
+        </h6>
+        <p class="card-text">
+          Имя: {{ order.first_name }}<br>
+          Фамилия: {{ order.last_name }}<br>
+          Товар: {{ order.product }}<br>
+          Обьем: {{ order.value }}</p>
+      </div>
+    </div>
+  </div>
