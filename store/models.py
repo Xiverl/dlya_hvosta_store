@@ -66,6 +66,7 @@ class Product(BaseModel):
     )
     image = models.ImageField('Фото', upload_to='products_images', blank=True)
     value = models.FloatField(verbose_name='Объем')
+    price = models.FloatField(verbose_name='Цена', blank=True)
 
     class Meta:
         verbose_name = 'Продукт'

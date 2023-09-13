@@ -14,8 +14,13 @@
             </a>
           </li>
           <li class="nav-item">
-            <a class="nav-link {% if view_name == 'pages:rules' %} text-white {% endif %}" href="{% url 'store:product-list' %}">
+            <a class="nav-link {% if view_name == 'store:product-list' %} text-white {% endif %}" href="{% url 'store:product-list' %}">
               Товары
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link {% if view_name == 'store:cart_detail' %} text-white {% endif %}" href="{% url 'store:cart_detail' %}">
+              Корзина
             </a>
           </li>
         </ul>

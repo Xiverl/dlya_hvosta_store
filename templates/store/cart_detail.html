@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}
+    Корзина покупок
+{% endblock %}
+{% block content %}
+    <div class="top-cover center-block">
+        {% for item in cart %}
+            {% with product=item.product %}
+                {% include "includes/cart_card.html" %}
+                <br>
+                <!--<tr>
+                    <td>
+                        <a href="{{ product.get_absolute_url }}">
+                            <img style="width:12rem" src="
+                                {% if product.image %}
+                                    {{ product.image.url }}
+                                {% else %}
+                                    {% static "img/Unknown.jpeg" %}
+                                {% endif %}">
+                        </a>
+                    </td>
+                    <td>{{ product.title }}</td>
+                    <td>{{ item.quantity }}</td>
+                    <td><a href="{% url 'store:cart_remove' product.id%}">Удалить товар</a></td>
+                    <td class="num">{{ item.price }} руб.</td>
+                    <td class="num">{{ item.total_price }} руб.</td>
+                </tr>-->
+            {% endwith %}
+        {% endfor %}
+        <tr class="total">
+            <td>Итог:</td>
+            <td colspan="4"></td>
+            <td class="num">{{ cart.get_total_price }} руб.</td>
+        </tr>
+        <p class="justify-content-center">
+            <a href="{% url "store:product-list" %}" class="btn btn-primary">Продолжить покупки</a>
+            <a href="#" class="btn btn-primary">Заказать</a>
+        </p>
+    </div>
+{% endblock %}
