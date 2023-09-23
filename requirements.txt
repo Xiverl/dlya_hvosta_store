@@ -1,3 +1,13 @@
+asgiref==3.7.2
 Django==3.2.16
 django-bootstrap5==22.2
+django-phonenumber-field==7.1.0
 flake8==5.0.4
+mccabe==0.7.0
+phonenumberslite==8.13.20
+Pillow==9.3.0
+pycodestyle==2.9.1
+pyflakes==2.5.0
+pytz==2023.3.post1
+sqlparse==0.4.4
+typing_extensions==4.7.1

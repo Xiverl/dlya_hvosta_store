@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from store.models import Category, Location, Product, Order
+from store.models import Category, Location, Product, Order, Brand, Type
 
 
 admin.site.empty_value_display = 'Не задано'
@@ -38,3 +38,5 @@ admin.site.register(Product, ProductAdmin)
 admin.site.register(Category, CategoryAdmin)
 admin.site.register(Location)
 admin.site.register(Order)
+admin.site.register(Brand)
+admin.site.register(Type)

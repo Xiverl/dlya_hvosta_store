@@ -1,4 +1,8 @@
 {% extends "base.html" %}
 {% block content %}
-    <h1>тут будет инфа о твоем профиле</h1>
+    {% for order in orders %}
+        <article class="mb-5">
+            {% include "includes/order_card.html" %}
+        </article>
+    {% endfor %}
 {% endblock %}

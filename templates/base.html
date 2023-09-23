@@ -13,6 +13,13 @@
       {% block title %}{% endblock %}
     </title>
     {% bootstrap_css %}
+    <style>
+      body {
+        background-image: url({% static 'img/background.avif' %});
+        background-repeat: no-repeat;
+        background-size: cover;
+      }
+    </style>
   </head>
   <body>
     {% include "includes/header.html" %}

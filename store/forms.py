@@ -11,8 +11,7 @@ class OrderForm(forms.ModelForm):
 
     class Meta:
         model = Order
-        exclude = ('is_published', 'product', )
-        # fields = '__all__'
+        exclude = ('is_published', 'product', 'user', 'status')
 
 
 class ProfileForm(forms.ModelForm):

@@ -25,7 +25,7 @@
         <p class="card-text">{{ product.text|truncatechars_html:100 }}</p>
         <a href="{% url 'store:product-detail' product.id %}" class="button light">Подробнее...</a>
         <p class="card-text"><b>Цена:</b> {{ product.price }} руб.</p>
-        <a href="{% url 'store:product-detail' product.id %}" class="btn btn-primary">Заказать</a>
+        <a href="{% url 'store:single-order-create' product.id %}" class="btn btn-primary">Заказать</a>
         {% load django_bootstrap5 %}
         <form method="post" action="{% url 'store:cart_add' product.id %}">
           {% csrf_token %}

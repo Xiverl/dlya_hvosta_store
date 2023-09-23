@@ -3,8 +3,8 @@
   <nav class="navbar navbar-light" style="background-color: lightskyblue">
     <div class="container">
       <a class="navbar-brand" href="{% url 'pages:about' %}">
-        <!--<img src="{% static 'img/logo.png' %}" width="30" height="30" class="d-inline-block align-top" alt="">-->
-        FeetStore
+        <img src="{% static 'img/logo.png' %}" width="30" height="30" class="d-inline-block align-top" alt="">
+        Для хвостА
       </a>
       {% with request.resolver_match.view_name as view_name %}
         <ul class="nav  nav-pills">
@@ -19,9 +19,26 @@
             </a>
           </li>
           <li class="nav-item">
-            <a class="nav-link {% if view_name == 'store:cart_detail' %} text-white {% endif %}" href="{% url 'store:cart_detail' %}">
-              Корзина
-            </a>
+            {% if user.is_authenticated %}
+            <li class="nav-item">
+              <a class="nav-link {% if view_name == 'store:cart_detail' %} text-white {% endif %}" href="{% url 'store:cart_detail' %}">
+                <img src="{% static 'img/cart.png' %}" width="30" height="30" class="d-inline-block align-top" alt="">
+              </a>
+            </li>
+            <div class="btn-group" role="group" aria-label="Basic outlined example">
+              <button type="button" class="btn btn-outline-primary"><a class="text-decoration-none text-reset"
+                  href="{% url 'store:profile' user.username %}">{{ user.username }}</a></button>
+              <button type="button" class="btn btn-outline-primary"><a class="text-decoration-none text-reset"
+                  href="{% url 'logout' %}">Выйти</a></button>
+            </div>
+            {% else %}
+              <div class="btn-group" role="group" aria-label="Basic outlined example">
+                <button type="button" class="btn btn-outline-primary"><a class="text-decoration-none text-reset"
+                    href="{% url 'login' %}">Войти</a></button>
+                <button type="button" class="btn btn-outline-primary"><a class="text-decoration-none text-reset"
+                    href="{% url 'registration' %}">Регистрация</a></button>
+              </div>
+            {% endif %}
           </li>
         </ul>
       {% endwith %}

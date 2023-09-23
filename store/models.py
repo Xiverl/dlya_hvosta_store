@@ -1,5 +1,3 @@
-from phonenumber_field.modelfields import PhoneNumberField
-
 from django.db import models
 from django.contrib.auth import get_user_model
 
@@ -43,12 +41,54 @@ class Category(BaseModel):
         return self.title
 
 
+class Type(BaseModel):
+    title = models.CharField(max_length=256, verbose_name='Тип')
+    slug = models.SlugField(
+        max_length=64,
+        unique=True,
+        verbose_name='Идентификатор',
+        help_text=(
+            'Идентификатор страницы для URL; '
+            'разрешены символы '
+            'латиницы, цифры, дефис и подчёркивание.'
+        )
+    )
+
+    class Meta:
+        verbose_name = 'тип'
+        verbose_name_plural = 'Типы'
+
+    def __str__(self):
+        return self.title
+
+
+class Brand(BaseModel):
+    title = models.CharField(max_length=256, verbose_name='Заголовок')
+    slug = models.SlugField(
+        max_length=64,
+        unique=True,
+        verbose_name='Идентификатор',
+        help_text=(
+            'Идентификатор страницы для URL; '
+            'разрешены символы '
+            'латиницы, цифры, дефис и подчёркивание.'
+        )
+    )
+
+    class Meta:
+        verbose_name = 'производитель'
+        verbose_name_plural = 'Производители'
+
+    def __str__(self):
+        return self.title
+
+
 class Location(BaseModel):
     name = models.CharField(max_length=256, verbose_name='Название места')
 
     class Meta:
-        verbose_name = 'местоположение'
-        verbose_name_plural = 'Местоположения'
+        verbose_name = 'район'
+        verbose_name_plural = 'районы'
 
     def __str__(self):
         return self.name
@@ -59,9 +99,21 @@ class Product(BaseModel):
     text = models.TextField(verbose_name='Текст')
     category = models.ForeignKey(
         Category,
+        on_delete=models.CASCADE,
+        verbose_name='Категория',
+        related_name='products'
+    )
+    type = models.ForeignKey(
+        Type,
         on_delete=models.SET_NULL,
         null=True,
-        verbose_name='Категория',
+        verbose_name='Тип',
+        related_name='products'
+    )
+    brand = models.ForeignKey(
+        Brand,
+        on_delete=models.CASCADE,
+        verbose_name='Производитель',
         related_name='products'
     )
     image = models.ImageField('Фото', upload_to='products_images', blank=True)
@@ -78,6 +130,12 @@ class Product(BaseModel):
 
 
 class Order(BaseModel):
+    user = location = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        verbose_name='Пользователь',
+        related_name='order'
+    )
     first_name = models.CharField(
         max_length=256,
         verbose_name='Имя',
@@ -88,25 +146,22 @@ class Order(BaseModel):
         verbose_name='Фамилия',
         null=False
     )
-    # number_phone = PhoneNumberField(blank=True, verbose_name='Номер телефона')
     number_phone = models.CharField(
         max_length=11,
         verbose_name='Номер телефона'
     )
     adress = models.CharField(max_length=256, verbose_name='Адресс')
-    value = models.IntegerField(verbose_name='Объем')
     location = models.ForeignKey(
         Location,
         on_delete=models.CASCADE,
-        verbose_name='Местоположение',
+        verbose_name='Район',
         related_name='order'
     )
-    product = models.ForeignKey(
-        Product,
-        on_delete=models.CASCADE,
+    status = models.CharField(
+        max_length=256,
+        default='Оформлен',
         null=False,
-        verbose_name='Продукт',
-        related_name='order'
+        verbose_name='Статус заказа'
     )
 
     class Meta:
@@ -116,3 +171,26 @@ class Order(BaseModel):
 
     def __str__(self):
         return f'Заказ {self.first_name} {self.last_name}'
+
+
+class OrderItem(models.Model):
+    order = models.ForeignKey(
+        Order,
+        related_name='items',
+        on_delete=models.CASCADE
+    )
+    product = models.ForeignKey(
+        Product,
+        on_delete=models.CASCADE,
+        null=False,
+        verbose_name='Продукт',
+        related_name='order'
+    )
+    price = models.DecimalField(max_digits=10, decimal_places=2)
+    quantity = models.PositiveIntegerField(default=1)
+
+    def __str__(self):
+        return '{}'.format(self.id)
+
+    def get_cost(self):
+        return self.price * self.quantity

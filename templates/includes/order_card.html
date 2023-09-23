@@ -10,8 +10,30 @@
         <p class="card-text">
           Имя: {{ order.first_name }}<br>
           Фамилия: {{ order.last_name }}<br>
-          Товар: {{ order.product }}<br>
-          Обьем: {{ order.value }}</p>
+          Адрес: <a href="#">{{ order.adress }}</a><br>
+          Номер телефона: <a href="#">{{order.number_phone}}</a><br>
+          Статус: {{ order.status }}<br>
+        </p>
+          <table class="table">
+            <thead>
+              <tr>
+                <th scope="col">#</th>
+                <th scope="col">Товар</th>
+                <th scope="col">Кол-во</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for item in order_items %}
+                {% if item.order == order %}
+                  <tr>
+                    <th scope="row">{{ forloop.counter }}</th>
+                    <td>{{ item.product.title }}</td>
+                    <td>{{ item.quantity }}</td>
+                  </tr>
+                {% endif %}
+              {% endfor %}
+            </tbody>
+          </table>
       </div>
     </div>
   </div>

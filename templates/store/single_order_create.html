@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block title %}Создание заказа{% endblock %}
+
+{% block content %}
+<div class="col d-flex justify-content-center">
+    <div class="card mb-4 box-shadow d-flex" style="width: 40rem;">
+        <div class="card-body">
+            <h1>Создание заказа</h1>
+            <div class="order-info">
+                <h3>Ваш заказ</h3>
+                <ul>
+                    <li>
+                        1 x {{ product.name }}
+                        <span>{{ product.price }} руб.</span>
+                    </li>
+                </ul>
+                <p>Цена за заказ: {{ product.price }} руб.</p>
+            </div>
+
+            {% load django_bootstrap5 %}
+            <form action="{% url 'store:single-order-create' product.id %}" method="post" class="order-form">
+                {% csrf_token %}
+                {% bootstrap_form form %}
+                <p><input class="btn btn-primary" type="submit" value="Офорить заказ"></p>
+                {% csrf_token %}
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
