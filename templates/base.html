@@ -18,13 +18,14 @@
         background-image: url({% static 'img/background.avif' %});
         background-repeat: no-repeat;
         background-size: cover;
+        background-attachment: fixed;
       }
     </style>
   </head>
   <body>
     {% include "includes/header.html" %}
     <main>
-      <div class="container py-5">
+      <div class="container py-5" >
         {% block content %}{% endblock %}
       </div>
     </main>

@@ -1,14 +1,25 @@
 from django.contrib.auth.views import LoginView
+from django.views.generic.edit import CreateView
+from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.core.paginator import Paginator
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
 
-from store.models import Product, Order, OrderItem
-from store.forms import OrderForm, CartAddProductForm
+from store.models import Product, Order, OrderItem, Location
+from store.forms import (
+    OrderForm,
+    CartAddProductForm,
+    InfoUserForm,
+    UserRegistrationForm
+)
 from store.cart import Cart
+from store.utils import get_info_order
 from feedStore.settings import PAGINATE_STEP
+
+
+User = get_user_model()
 
 
 class ProfileLoginView(LoginView):
@@ -20,6 +31,15 @@ class ProfileLoginView(LoginView):
         return url
 
 
+class CreateUserView(CreateView):
+    form_class = UserRegistrationForm
+
+    class Meta:
+        model = User
+        fields = ('username', 'password')
+
+
+@login_required
 def info_profile(request, name):
     template_name = 'store/profile.html'
     user = get_object_or_404(
@@ -31,6 +51,23 @@ def info_profile(request, name):
     context = {
         'orders': orders,
         'order_items': order_items
+    }
+    return render(request, template_name, context)
+
+
+@login_required
+def info_user_edit(request, name):
+    template_name = 'store/info-user.html'
+    instance = request.user
+    form = InfoUserForm(request.POST or None, instance=instance)
+    if request.method == 'POST':
+        if form.is_valid():
+            info = form.save(commit=False)
+            info.save()
+            return redirect('store:profile', name)
+    context = {
+        'form': form,
+        'info': instance,
     }
     return render(request, template_name, context)
 
@@ -70,9 +107,10 @@ def cart_add(request, product_id):
         cart.add(product=product,
                  quantity=1,
                  update_quantity=cd['update'])
-    return redirect('store:cart_detail')
+    return redirect('store:product-list')
 
 
+@login_required
 def cart_remove(request, product_id):
     cart = Cart(request)
     product = get_object_or_404(Product, id=product_id)
@@ -80,24 +118,30 @@ def cart_remove(request, product_id):
     return redirect('store:cart_detail')
 
 
+@login_required(login_url='login')
 def cart_detail(request):
     cart = Cart(request)
     return render(request, 'store/cart_detail.html', {'cart': cart})
 
 
+@login_required(login_url='login')
 def order_list(request):
     template_name = 'store/admin_pages.html'
     orders = Order.objects.filter(is_published=True)
     context = {
-        'orders': orders,
-        'status': STATUS_DICT
+        'orders': orders
     }
     return render(request, template_name, context)
 
 
+@login_required(login_url='login')
 def order_add(request, pk):
     product = get_object_or_404(Product, id=pk)
-    form = OrderForm(request.POST)
+    form = OrderForm(request.POST or None)
+    if request.user.is_info:
+        order = get_info_order(request.user)
+        form = OrderForm(request.POST or None, instance=order)
+        order.delete()
     if request.method == 'POST':
         if form.is_valid():
             order = form.save(commit=False)
@@ -110,19 +154,40 @@ def order_add(request, pk):
                 quantity=1,
                 price=product.price
             )
+            product.value = product.value - 1
+            product.save()
             return redirect('store:profile', request.user.username)
     template_name = 'store/single_order_create.html'
     context = {
-        'form': OrderForm,
+        'form': form,
         'product': product
     }
     return render(request, template_name, context)
 
 
+@login_required(login_url='login')
 def order_create(request):
+    template_name = 'store/order_create.html'
     cart = Cart(request)
+    form = OrderForm(request.POST or None)
+    if request.user.is_info:
+        order = get_info_order(request.user)
+        form = OrderForm(request.POST or None, instance=order)
+        order.delete()
     if request.method == 'POST':
-        form = OrderForm(request.POST)
+        if len(cart) == 0:
+            form.add_error(
+                error='Добавте товар(ы) в корзину.',
+                field='__all__'
+            )
+            return render(
+                request,
+                template_name,
+                {
+                    'cart': cart,
+                    'form': form,
+                }
+            )
         if form.is_valid():
             order = form.save(commit=False)
             order.user = request.user
@@ -134,15 +199,53 @@ def order_create(request):
                     price=item['price'],
                     quantity=item['quantity']
                 )
+                item['product'].value = item['product'].value - item['quantity']
+                item['product'].save()
             cart.clear()
             return redirect('store:profile', request.user.username)
-    else:
-        form = OrderForm
-    return render(
-        request,
-        'store/order_create.html',
-        {
-            'cart': cart,
-            'form': form
-        }
-    )
+    context = {
+        'cart': cart,
+        'form': form,
+    }
+    return render(request, template_name, context)
+
+
+def order_ready(request, pk):
+    order = get_object_or_404(Order, id=pk)
+    order.status = 'Доставлен'
+    order.save()
+    return redirect('store:profile', request.user.username)
+
+
+def order_confirmed(request, pk):
+    order = get_object_or_404(Order, id=pk)
+    order.status = 'Подтвержден'
+    order.save()
+    return redirect('store:profile', request.user.username)
+
+
+def order_cancelled(request, pk):
+    order = get_object_or_404(Order, id=pk)
+    order.status = 'Отменен'
+    order.save()
+    return redirect('store:profile', request.user.username)
+
+
+@login_required(login_url='login')
+def delivery_page(request):
+    order_items = OrderItem.objects.all()
+    template_name = 'store/delivery_page.html'
+    if not request.user.is_superuser:
+        return render(request, 'error/403.html')
+    menu_dict = list()
+    for location in Location.objects.all():
+        menu_dict.append(
+            {
+                f'{location.name}': location.order.all()
+            }
+        )
+    context = {
+        'menu_dict': menu_dict,
+        'order_items': order_items
+    }
+    return render(request, template_name, context)

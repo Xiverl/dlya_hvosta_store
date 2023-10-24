@@ -3,8 +3,7 @@
   <nav class="navbar navbar-light" style="background-color: lightskyblue">
     <div class="container">
       <a class="navbar-brand" href="{% url 'pages:about' %}">
-        <img src="{% static 'img/logo.png' %}" width="30" height="30" class="d-inline-block align-top" alt="">
-        Для хвостА
+        <img src="{% static 'img/два хвоста.png' %}" width="120" height="30" class="d-inline-block align-top" alt="">
       </a>
       {% with request.resolver_match.view_name as view_name %}
         <ul class="nav  nav-pills">
@@ -18,6 +17,13 @@
               Товары
             </a>
           </li>
+          {% if request.user.is_superuser %}
+            <li class="nav-item">
+              <a class="nav-link {% if view_name == 'store:delivery' %} text-white {% endif %}" href="{% url 'store:delivery' %}">
+                Доставка
+              </a>
+            </li>
+          {% endif %}
           <li class="nav-item">
             {% if user.is_authenticated %}
             <li class="nav-item">

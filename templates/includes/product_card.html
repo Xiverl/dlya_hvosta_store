@@ -20,6 +20,7 @@
               <p class="text-danger">Выбранная категория снята с публикации админом</p>
             {% endif %}
             {{ product.created_at|date:"d E Y, H:i" }} <br>
+            Осталось: {{ product.value }} <br>
           </small>
         </h6>
         <p class="card-text">{{ product.text|truncatechars_html:100 }}</p>

@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}
+  Страница доставщика
+{% endblock %}
+{% block content %}
+    {% for dict in menu_dict %}
+        {% for key,value in dict.items %}
+        <article class="mb-5">
+            <div class="col d-flex justify-content-center">
+                <div class="card" style="width: 60rem; background-color: #d8bfd8">
+                  <div class="card-body">
+                    <h5 class="card-title text-center">{{key}}</h5>
+                    <br>
+                    {% for order in value %}
+                        <article class="mb-5">
+                          {% if order.status != 'Доставлен' %}
+                            {% include 'includes/order_card.html' %}
+                          {% endif %}
+                        </article>
+                    {% endfor %}
+                  </div>
+                </div>
+            </div>
+        </article>
+        {% endfor %}
+    {% endfor %}
+{% endblock %}

@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block title %}Редактирование анкеты{% endblock %}
+
+{% block content %}
+<div class="col d-flex justify-content-center">
+    <div class="card mb-4 box-shadow d-flex" style="width: 40rem;">
+        <div class="card-body">
+            <h1>Редактирование анкеты данных пользователя</h1>
+            {% if instance is not None %}
+                <p>Данная анкета необязательна к заполнению. 
+                    Но если вы частый посетитель нашего сайта, 
+                    то данные из этой анкеты ускорят оформление заказов в будущем.
+                </p>
+            {% endif %}
+            {% load django_bootstrap5 %}
+            <form action="{% url 'store:info-user-edit' request.user.username %}" method="post" class="order-form">
+                {% csrf_token %}
+                {% bootstrap_form form %}
+                <p><input class="btn btn-primary" type="submit" value="Отправить данные"></p>
+                {% csrf_token %}
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

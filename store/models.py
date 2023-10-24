@@ -1,8 +1,6 @@
 from django.db import models
-from django.contrib.auth import get_user_model
-
-
-User = get_user_model()
+from django.contrib.auth.models import AbstractUser
+from django.core.validators import RegexValidator
 
 
 class BaseModel(models.Model):
@@ -18,6 +16,90 @@ class BaseModel(models.Model):
 
     class Meta:
         abstract = True
+
+
+class Location(BaseModel):
+    name = models.CharField(max_length=256, verbose_name='Название места')
+
+    class Meta:
+        verbose_name = 'район'
+        verbose_name_plural = 'районы'
+
+    def __str__(self):
+        return self.name
+
+
+class User(AbstractUser):
+    username = models.CharField(
+        max_length=150,
+        verbose_name='Имя пользователя',
+        unique=True,
+        db_index=True,
+        validators=(RegexValidator(
+            regex=r'^[\w.@+-]+$',
+            message='Имя пользователя содержит недопустимый символ'
+        ),)
+    )
+    email = models.EmailField(
+        max_length=254,
+        verbose_name='email',
+        null=True,
+        unique=True
+    )
+    first_name = models.CharField(
+        max_length=150,
+        verbose_name='имя',
+        blank=True
+    )
+    last_name = models.CharField(
+        max_length=150,
+        verbose_name='фамилия',
+        blank=True
+    )
+    number_phone = models.CharField(
+        max_length=11,
+        verbose_name='Номер телефона',
+        validators=(RegexValidator(
+            regex=r'^[+*\w]$',
+            message='Номер телефона пользователя содержит недопустимый символ'
+        ),)
+    )
+    city = models.CharField(max_length=256, verbose_name='Город')
+    street = models.CharField(max_length=256, verbose_name='Улица')
+    building = models.CharField(max_length=256, verbose_name='Строение')
+    entrance = models.CharField(max_length=256, verbose_name='Подъезд')
+    location = models.ForeignKey(
+        Location,
+        on_delete=models.SET_NULL,
+        null=True,
+        verbose_name='Район',
+        related_name='user'
+    )
+
+    class Meta:
+        verbose_name = 'Пользователь'
+        verbose_name_plural = 'Пользователи'
+        ordering = ('id',)
+
+    def __str__(self):
+        return self.username[:15]
+
+    @property
+    def is_info(self):
+        atrs = [
+            self.first_name,
+            self.last_name,
+            self.number_phone,
+            self.city,
+            self.street,
+            self.building,
+            self.entrance,
+            self.location
+        ]
+        for atr in atrs:
+            if atr is None:
+                return False
+        return True
 
 
 class Category(BaseModel):
@@ -83,17 +165,6 @@ class Brand(BaseModel):
         return self.title
 
 
-class Location(BaseModel):
-    name = models.CharField(max_length=256, verbose_name='Название места')
-
-    class Meta:
-        verbose_name = 'район'
-        verbose_name_plural = 'районы'
-
-    def __str__(self):
-        return self.name
-
-
 class Product(BaseModel):
     title = models.CharField(max_length=256, verbose_name='Заголовок')
     text = models.TextField(verbose_name='Текст')
@@ -130,27 +201,47 @@ class Product(BaseModel):
 
 
 class Order(BaseModel):
-    user = location = models.ForeignKey(
+    user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
         verbose_name='Пользователь',
         related_name='order'
     )
     first_name = models.CharField(
-        max_length=256,
-        verbose_name='Имя',
-        null=False
+        max_length=150,
+        verbose_name='имя',
+        blank=True
     )
     last_name = models.CharField(
-        max_length=256,
-        verbose_name='Фамилия',
-        null=False
+        max_length=150,
+        verbose_name='фамилия',
+        blank=True
     )
     number_phone = models.CharField(
         max_length=11,
-        verbose_name='Номер телефона'
+        verbose_name='Номер телефона',
+        blank=True
     )
-    adress = models.CharField(max_length=256, verbose_name='Адресс')
+    city = models.CharField(
+        max_length=256,
+        verbose_name='Город',
+        blank=True
+    )
+    street = models.CharField(
+        max_length=256,
+        verbose_name='Улица',
+        blank=True
+    )
+    building = models.CharField(
+        max_length=256,
+        verbose_name='Строение',
+        blank=True
+    )
+    entrance = models.CharField(
+        max_length=256,
+        verbose_name='Подъезд',
+        blank=True
+    )
     location = models.ForeignKey(
         Location,
         on_delete=models.CASCADE,
