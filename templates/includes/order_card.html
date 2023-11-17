@@ -34,7 +34,7 @@
               {% endfor %}
             </tbody>
           </table>
-          {% if order.status != 'Доставлен' %}
+          {% if order.status != 'Доставлен' and order.status != 'Отменен' %}
             {% if order.status != 'Отменен' %}
             <a href="{% url 'store:order_cancelled' order.id %}" class="btn btn-primary">Отменить</a>
             {% endif %}
