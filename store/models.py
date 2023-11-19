@@ -49,18 +49,26 @@ class User(AbstractUser):
     first_name = models.CharField(
         max_length=150,
         verbose_name='имя',
+        validators=(RegexValidator(
+            regex=r'^[А-Я][а-яё]*$',
+            message='Номер телефона пользователя содержит недопустимый символ'
+        ),),
         blank=True
     )
     last_name = models.CharField(
         max_length=150,
         verbose_name='фамилия',
+        validators=(RegexValidator(
+            regex=r'^[А-Я][а-яё]*$',
+            message='Номер телефона пользователя содержит недопустимый символ'
+        ),),
         blank=True
     )
     number_phone = models.CharField(
         max_length=11,
         verbose_name='Номер телефона',
         validators=(RegexValidator(
-            regex=r'^[+*\w]$',
+            regex=r'^((8|\+7)[\- ]?)?(\(?\d{3}\)?[\- ]?)?[\d\- ]{7,10}$',
             message='Номер телефона пользователя содержит недопустимый символ'
         ),)
     )
